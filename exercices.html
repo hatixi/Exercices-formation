@@ -101,6 +101,16 @@ button{font:inherit;font-weight:800;border:none;border-radius:9px;min-height:52p
 .sc small{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
 .tag{font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .tag.a{background:#E4F3EA;color:var(--ok)} .tag.b{background:#FBE9E7;color:var(--ko)}
+#dlg{position:fixed;inset:0;z-index:50;background:rgba(15,25,45,.55);display:none;align-items:center;justify-content:center;padding:16px}
+#dlg.on{display:flex}
+#dlg .box{background:#fff;border-radius:12px;max-width:440px;width:100%;padding:20px 18px 16px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+#dlg h2{font-size:18px;margin:0 0 8px;color:var(--navy)}
+#dlg p{margin:0 0 10px;font-size:15px}
+#dlg .warn{background:#FFF6E5;border-left:4px solid var(--warn);color:#5C3D00;padding:8px 10px;font-size:14px;font-weight:600}
+#dlg .row{display:flex;gap:10px;margin-top:14px}
+#dlg .row button{flex:1}
+#dlgOk{background:var(--navy);color:#fff}
+#dlgNo{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
 .alert{background:#FFF6E5;border-left:5px solid var(--warn);color:#5C3D00;padding:11px 13px;border-radius:0 8px 8px 0;font-size:14px;margin:12px 0;font-weight:600}
 .note{font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:12px}
 #fallback{display:none;text-align:center;margin-top:12px;font-size:15px}
@@ -131,8 +141,6 @@ button{font:inherit;font-weight:800;border:none;border-radius:9px;min-height:52p
       <input type="text" id="i-fon" placeholder="Technicien">
       <label class="f" for="i-role">Rôle tenu pendant la session</label>
       <select id="i-role"><option value="">Choisir…</option><option>Chef d'équipe</option><option>Équipier</option></select>
-      <label class="f" for="i-date">Date de la session</label>
-      <input type="text" id="i-date" inputmode="numeric" placeholder="10/09/2026">
     </div>
     <p class="note">Formateur : Harry TIXIDOR. Référente handicap : Emma PRIETO. Une adaptation des modalités est possible à tout moment, signalez-le au formateur.</p>
   </section>
@@ -142,9 +150,10 @@ button{font:inherit;font-weight:800;border:none;border-radius:9px;min-height:52p
   <section class="step" data-s="4"></section>
   <section class="step" data-s="5"></section>
   <section class="step" data-s="6"></section>
-  <section class="step" data-s="7"></section>
 </main>
 
+<div id="dlg" role="dialog" aria-modal="true"><div class="box"><h2 id="dlgT"></h2><div id="dlgB"></div>
+  <div class="row"><button id="dlgNo" type="button">Annuler</button><button id="dlgOk" type="button">OK</button></div></div></div>
 <nav>
   <button id="bPrev" aria-label="Étape précédente">‹</button>
   <button id="bNext">Commencer</button>
@@ -566,7 +575,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
 var TITRES=["Identification","Module 1 — Recevoir son intervention","Module 2 — EPI et conformité",
   "Module 3 — Pointages","Module 4 — Preuve photo","Module 5 — Clôture et client",
-  "Quiz final récapitulatif","Justificatif"];
+  "Justificatif"];
 var LTR=["a","b","c","d","e"];
 
 /* ---------------- M1 ---------------- */
@@ -678,24 +687,6 @@ var DEC=[
      "Vous laissez l'intervention ouverte et revenez la faire signer lors d'un prochain passage",
      "Vous clôturez sans rien indiquer, l'exploitation régularisera le bon avec le client"],r:0}];
 
-/* ---------------- Quiz ---------------- */
-var QUIZ=[
- {m:"M1",q:"Dans quel ordre l'affaire parvient-elle jusqu'au technicien ?",o:["Du commercial à l'exploitation, puis au terrain","De l'exploitation au commercial, puis au terrain","Du terrain à l'exploitation, puis au commercial","Du commercial directement au terrain, l'exploitation intervenant après coup"],r:0},
- {m:"M1",q:"À quoi servent, au-delà du chantier, les pointages et les photos saisis dans l'application ?",o:["Ils servent surtout au suivi du temps de travail et au calcul des heures supplémentaires","Ils permettent à l'exploitation de reconstituer la journée et d'ajuster le planning suivant","Ils tracent l'intervention, servent de preuve en cas de litige et fondent la facturation","Ils constituent l'archive technique du chantier, consultable par le client sur son espace dédié"],r:2},
- {m:"M1",q:"Quelle action relève du seul chef d'équipe ?",o:["Prendre les photos avant, pendant et après l'intervention et les classer par catégorie","Pointer son arrivée et son départ du chantier ainsi que ses temps de pause","Valider la check-list EPI au nom de l'équipe et recueillir la signature du client","Consulter la fiche d'intervention assignée et le référentiel EPI associé au chantier"],r:2},
- {m:"M2",q:"Qu'est-ce qui détermine la liste des EPI attachés à une intervention ?",o:["La dotation standard de l'agence, identique pour toutes les interventions","Les risques propres au chantier : CVC, salle propre, travail en hauteur, risque électrique","Le choix du chef d'équipe au moment du départ de l'atelier","Les exigences que le client a fait figurer dans son cahier des charges"],r:1},
- {m:"M2",q:"Que débloque la validation de la check-list EPI ?",o:["L'accès au reportage photo et à ses quatre catégories","La génération du bon d'intervention à faire signer au client","L'affichage du référentiel EPI associé au chantier","Le bouton « Arrivée chantier », qui permet de démarrer l'intervention"],r:3},
- {m:"M2",q:"Un EPI listé sur l'intervention manque au moment du démarrage. Que se passe-t-il ?",o:["L'intervention peut démarrer, l'écart étant signalé dans le compte rendu de fin de chantier","L'intervention ne peut pas démarrer tant que la dotation n'est pas conforme au référentiel EPI","L'équipier engage les tâches sans risque, le chef d'équipe traitant le point à son arrivée","Le chef d'équipe valide la check-list en signalant l'écart, ce qui débloque le démarrage"],r:1},
- {m:"M3",q:"Vous perdez le réseau en plein chantier au moment de pointer. Quelle est la bonne conduite ?",o:["Poursuivre la saisie dans l'application, les pointages se synchronisant au retour du réseau","Attendre le retour du réseau et pointer alors, en décalant les horaires réellement effectués","Noter les horaires sur papier et les transmettre à l'exploitation qui les saisira à votre place","Reprendre la séquence de pointage depuis le départ atelier une fois la connexion rétablie"],r:0},
- {m:"M3",q:"Vous enchaînez deux chantiers dans la journée. Comment tracer le trajet entre les deux ?",o:["Pointer l'ensemble du trajet en une seule fois, au retour à l'atelier en fin de journée","Considérer ce temps comme une pause, puisqu'aucune prestation n'y est réalisée","Pointer le départ du premier chantier puis l'arrivée sur le second, le trajet découlant des deux pointages","Ne rien pointer entre les deux, l'application reliant automatiquement les interventions"],r:2},
- {m:"M3",q:"Quelle est la conséquence d'un pointage oublié ou erroné ?",o:["Aucune conséquence directe, l'exploitation recalcule les temps à partir des photos horodatées","L'intervention reste ouverte et ne peut plus être clôturée par le chef d'équipe","Le pointage suivant est bloqué tant que le précédent n'a pas été corrigé","Le suivi de l'intervention et la facturation reposent sur des temps faux"],r:3},
- {m:"M4",q:"Quelle photo constitue réellement une preuve exploitable ?",o:["Une photo nette et cadrée sur l'élément traité, permettant de le situer dans son environnement","Une vue prise à distance montrant l'ensemble du local et les équipements traités","Une photo prise au plus près, afin que le détail traité occupe tout le cadre","Une série prise rapidement en fin de chantier, pour couvrir un maximum d'éléments"],r:0},
- {m:"M4",q:"Vous avez remplacé une pièce défectueuse. Quel reportage documente correctement l'intervention ?",o:["Une photo après intervention, qui montre l'installation remise en état de fonctionnement","Une photo avant et une photo après, l'écart entre les deux établissant la prestation réalisée","Les quatre catégories attendues : avant, pendant, après et détail de l'élément concerné","Une série de clichés pris pendant l'opération, montrant chaque étape du remplacement"],r:2},
- {m:"M4",q:"À quel moment vérifie-t-on la complétude du reportage photo ?",o:["Au retour à l'atelier, avant de rendre le véhicule","Avant la clôture de l'intervention, alors que l'on est encore sur le chantier","À la demande de l'exploitation, en cas de litige avec le client","Le lendemain, lorsque les photos sont remontées dans le dossier d'intervention"],r:1},
- {m:"M5",q:"Le client est absent à la fin de l'intervention. Que faites-vous ?",o:["Clôturer sans signature et laisser l'exploitation régulariser le bon directement avec le client","Signer à sa place afin que le bon d'intervention puisse être généré et transmis","Renseigner l'absence dans l'intervention, clôturer avec les preuves photo et alerter l'exploitation","Laisser l'intervention ouverte et revenir la faire signer lors d'un prochain passage sur site"],r:2},
- {m:"M5",q:"Quelle attitude est la plus juste au moment de la signature ?",o:["Lui présenter le bon d'intervention et expliquer ce qui a été réalisé avant de recueillir sa signature","Le faire signer rapidement pour ne pas le retenir, les détails figurant déjà sur le bon","Lui demander de signer et l'orienter vers le commercial pour toute question sur l'intervention","Lui montrer les photos prises et le laisser les vérifier avant qu'il ne signe le bon"],r:0},
- {m:"M5",q:"Que produit la signature du client en fin d'intervention ?",o:["Un accusé de réception envoyé automatiquement au client par courriel","La validation des pointages de l'équipe pour la journée écoulée","La clôture automatique de l'intervention et son archivage","Le PDF du bon d'intervention signé, qui vaut preuve de la prestation réalisée"],r:3}];
-
 /* ---------------- illustrations ---------------- */
 function svgPhoto(n){
   var W=340,H=210, bg='#E9EDF3', mtl='#C3CBD6', mtl2='#9AA5B4', dk='#5C6675', nv='#1F3864';
@@ -764,9 +755,7 @@ var S={id:{},
  m2:{a:null,b:null,aj:[],bj:[]},
  m3:{seq:["","","","","","",""],tir:null,cas:[null,null],anom:null},
  m4:{cat:["","","","",""],nc:null,motif:null,manque:null},
- m5:{seq:["","","","","",""],dec:[null,null,null]},
- quiz:[]};
-for(var i=0;i<QUIZ.length;i++) S.quiz.push(null);
+ m5:{seq:["","","","","",""],dec:[null,null,null]}};
 
 var KEY="cahier_technicien_7h";
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
@@ -962,19 +951,6 @@ function buildM5(){
   s.appendChild(c2);
 }
 
-function buildQuiz(){
-  var s=sec(6);
-  s.innerHTML=head("Fin de journée","Quiz final récapitulatif","15 questions couvrant les cinq modules",
-    "Exercice 6 — noté sur 15","Une seule réponse est exacte par question. Seuil de réussite du quiz : 9 sur 15.");
-  var c=el('<div class="card"></div>');
-  QUIZ.forEach(function(x,i){
-    var w=el('<div class="q"><div class="qn">Question '+(i+1)+' — '+x.m+'</div><div class="qt">'+esc(x.q)+'</div></div>');
-    w.appendChild(choices(x.o,S.quiz[i],function(j){S.quiz[i]=j;},true));
-    c.appendChild(w);
-  });
-  s.appendChild(c);
-}
-
 /* ---------------- notation ---------------- */
 function msScore(arr,ok,max){
   var g=0,b=0;
@@ -1000,43 +976,35 @@ function sM4(){
 }
 function sM5ord(){ var ok=0; for(var i=0;i<6;i++) if(S.m5.seq[i]===SEQ5[i]) ok++; return Math.round(ok*4/6); }
 function sM5(){ var n=sM5ord(); DEC.forEach(function(x,i){ if(S.m5.dec[i]===x.r) n+=2; }); return n; }
-function sQZ(){ var n=0; for(var i=0;i<QUIZ.length;i++) if(S.quiz[i]===QUIZ[i].r) n++; return n; }
-function total(){ return sM1()+sM2()+sM3()+sM4()+sM5()+sQZ(); }
+function total(){ return sM1()+sM2()+sM3()+sM4()+sM5(); }
 
 /* ---------------- écran final ---------------- */
 function buildFin(){
-  var s=sec(7), T=total(), ok=T>=36;
-  s.innerHTML=head("Fin du cahier","Vos résultats","Notation automatique sur l'ensemble des six exercices","","");
-  s.appendChild(el('<div class="tot"><div class="n">'+T+' <span style="font-size:22px;opacity:.65">/ 60</span></div>'+
-    '<div class="l">SEUIL DE RÉUSSITE : 36 / 60</div><div class="v '+(ok?'a':'b')+'">'+(ok?'ACQUIS':'NON ACQUIS')+'</div></div>'));
+  var s=sec(6), T=total(), ok=T>=27;
+  s.innerHTML=head("Fin du cahier","Vos résultats","Notation automatique sur l'ensemble des cinq exercices","","");
+  s.appendChild(el('<div class="tot"><div class="n">'+T+' <span style="font-size:22px;opacity:.65">/ 45</span></div>'+
+    '<div class="l">SEUIL DE RÉUSSITE : 27 / 45</div><div class="v '+(ok?'a':'b')+'">'+(ok?'ACQUIS':'NON ACQUIS')+'</div></div>'));
   var c=el('<div class="card"></div>');
   [["Module 1","Fiche d'intervention à lire",sM1(),5,3],
    ["Module 2","Mise en situation EPI",sM2(),10,6],
    ["Module 3","Parcours pointage",sM3(),10,6],
    ["Module 4","Reportage photo conforme",sM4(),10,6],
-   ["Module 5","Parcours d'intervention complet",sM5(),10,6],
-   ["Quiz final","15 questions",sQZ(),15,9]].forEach(function(x){
+   ["Module 5","Parcours d'intervention complet",sM5(),10,6]].forEach(function(x){
     var a=x[2]>=x[4];
     c.appendChild(el('<div class="sc"><div>'+x[0]+'<small>'+x[1]+'</small></div><div style="display:flex;align-items:center;gap:9px"><b>'+x[2]+' / '+x[3]+'</b><span class="tag '+(a?'a':'b')+'">'+(a?'Acquis':'À revoir')+'</span></div></div>'));
   });
   s.appendChild(c);
-  if(S.m3.tir===null) s.appendChild(el('<div class="alert">Vous n\'avez pas tiré vos deux cas particuliers au module 3 : 4 points ne sont pas comptabilisés. Revenez au module 3 si vous souhaitez les traiter.</div>'));
+  if(S.m3.tir===null) s.appendChild(el('<div class="alert">Vous n\'avez pas tiré vos deux cas particuliers au module 3 : 4 points ne sont pas comptabilisés.</div>'));
   var b=el('<button class="dl" type="button">Télécharger mon justificatif PDF</button>');
   b.addEventListener("click",function(){ makePDF(b); });
   s.appendChild(b);
   s.appendChild(el('<div id="fallback">Si le téléchargement ne démarre pas : <a id="flink" href="#" download>ouvrir le PDF</a></div>'));
   s.appendChild(el('<p class="note">Le justificatif reprend le détail de vos réponses et la correction. Remettez-le au formateur : il vaut preuve de réalisation des exercices.</p>'));
-  var r=el('<button class="ghost" type="button">Effacer toutes mes réponses</button>');
-  r.addEventListener("click",function(){
-    if(!confirm("Effacer toutes vos réponses ? Cette action est définitive.")) return;
-    try{ localStorage.removeItem(KEY); }catch(e){} location.reload();
-  });
-  s.appendChild(r);
 }
 
 /* ---------------- PDF ---------------- */
 function makePDF(btn){
-  if(!window.jspdf||!window.jspdf.jsPDF){ alert("Le générateur PDF n'est pas disponible."); return; }
+  if(!window.jspdf||!window.jspdf.jsPDF){ dlg("Justificatif indisponible","<p>Le générateur PDF n'est pas disponible. Prévenez le formateur.</p>"); return; }
   var old=btn.textContent; btn.disabled=true; btn.textContent="Génération…";
   try{
     var doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
@@ -1067,11 +1035,11 @@ function makePDF(btn){
         doc.text("Cet enregistrement ne vaut pas l'agrément de l'État.  —  Page "+p+" / "+n,PW/2,290,{align:"center"});
         doc.setTextColor(0);} }
     var C=function(v){ return {content:v,styles:{halign:"center"}}; };
-    var m1=sM1(),m2=sM2(),m3=sM3(),m4=sM4(),m5=sM5(),qz=sQZ(),T2=m1+m2+m3+m4+m5+qz;
+    var m1=sM1(),m2=sM2(),m3=sM3(),m4=sM4(),m5=sM5(),T2=m1+m2+m3+m4+m5;
 
     bandeau();
-    T(["Stagiaire","Entreprise ou agence","Fonction","Rôle","Date de session"],
-      [[S.id.nom||"",S.id.ent||"",S.id.fon||"",S.id.role||"",S.id.date||""]]);
+    T(["Stagiaire","Entreprise ou agence","Fonction","Rôle"],
+      [[S.id.nom||"",S.id.ent||"",S.id.fon||"",S.id.role||""]]);
 
     titre("Synthèse des résultats");
     T(["Exercice","Barème","Score","Seuil","Résultat"],
@@ -1080,8 +1048,7 @@ function makePDF(btn){
        ["Module 3 — Parcours pointage",C("/ 10"),C(String(m3)),C("6"),C(m3>=6?"Acquis":"À revoir")],
        ["Module 4 — Reportage photo conforme",C("/ 10"),C(String(m4)),C("6"),C(m4>=6?"Acquis":"À revoir")],
        ["Module 5 — Parcours d'intervention complet",C("/ 10"),C(String(m5)),C("6"),C(m5>=6?"Acquis":"À revoir")],
-       ["Quiz final récapitulatif",C("/ 15"),C(String(qz)),C("9"),C(qz>=9?"Acquis":"À revoir")],
-       [{content:"TOTAL",styles:{fontStyle:"bold"}},C("/ 60"),C(String(T2)),C("36"),C(T2>=36?"ACQUIS":"NON ACQUIS")]],
+       [{content:"TOTAL",styles:{fontStyle:"bold"}},C("/ 45"),C(String(T2)),C("27"),C(T2>=27?"ACQUIS":"NON ACQUIS")]],
       {0:{cellWidth:74}});
 
     titre("Module 1 — Fiche d'intervention à lire");
@@ -1128,12 +1095,6 @@ function makePDF(btn){
       DEC.map(function(x,i){ return [x.n+" — "+x.q,(S.m5.dec[i]===null?"—":x.o[S.m5.dec[i]]),x.o[x.r],C(S.m5.dec[i]===x.r?"2":"0")]; }),
       {0:{cellWidth:42},3:{cellWidth:12}});
 
-    titre("Quiz final récapitulatif");
-    T(["N°","Mod.","Réponse donnée","Réponse attendue","Pts"],
-      QUIZ.map(function(x,i){ var g=S.quiz[i];
-        return [C(String(i+1)),C(x.m),(g===null?"—":LTR[g]+") "+x.o[g]),LTR[x.r]+") "+x.o[x.r],C(g===x.r?"1":"0")]; }),
-      {0:{cellWidth:9},1:{cellWidth:12},4:{cellWidth:10}});
-
     if(y>215){ doc.addPage(); y=20; }
     titre("Validation");
     doc.setFont("helvetica","normal"); doc.setFontSize(8.5);
@@ -1155,12 +1116,12 @@ function makePDF(btn){
     var fb=q("#fallback"),fl=q("#flink");
     if(fb&&fl){ fl.href=url; fl.download=a.download; fb.style.display="block"; }
     setTimeout(function(){ URL.revokeObjectURL(url); },120000);
-  }catch(e){ alert("Le justificatif n'a pas pu être généré. Prévenez le formateur."); if(window.console) console.error(e); }
+  }catch(e){ dlg("Justificatif non généré","<p>Le justificatif n'a pas pu être généré. Prévenez le formateur.</p>"); if(window.console) console.error(e); }
   btn.disabled=false; btn.textContent=old;
 }
 
 /* ---------------- navigation ---------------- */
-var step=0,MAX=7,bars=q("#bars");
+var step=0,MAX=6,bars=q("#bars");
 for(var b2=0;b2<=MAX;b2++) bars.appendChild(document.createElement("i"));
 function sync(){
   q("#hstep").textContent=(step+1)+" / "+(MAX+1);
@@ -1169,13 +1130,27 @@ function sync(){
   for(var k=0;k<ii.length;k++) ii[k].className=k<step?"done":(k===step?"now":"");
   var p=q("#bPrev"),n=q("#bNext");
   p.style.visibility=step===0?"hidden":"visible";
-  if(step===MAX){ n.style.display="none"; p.style.flex="1"; p.style.width="auto"; p.style.fontSize="16px"; p.textContent="‹  Revenir au quiz"; }
-  else { n.style.display="block"; p.style.flex="none"; p.style.width="56px"; p.style.fontSize="20px"; p.textContent="‹";
+  q("nav").style.display=step===MAX?"none":"flex";
+  if(step!==MAX){ n.style.display="block"; p.style.flex="none"; p.style.width="56px"; p.style.fontSize="20px"; p.textContent="‹";
     n.textContent=step===0?"Commencer":(step===MAX-1?"Terminer et voir mes résultats":"Suivant"); }
+}
+function dlg(titre,corps,ok,cb){
+  q("#dlgT").textContent=titre; q("#dlgB").innerHTML=corps;
+  q("#dlgOk").textContent=ok||"OK"; q("#dlgNo").style.display=cb?"block":"none";
+  q("#dlgOk").onclick=function(){ q("#dlg").classList.remove("on"); if(cb) cb(); };
+  q("#dlgNo").onclick=function(){ q("#dlg").classList.remove("on"); };
+  q("#dlg").classList.add("on"); q("#dlgOk").focus();
 }
 function go(n){
   if(n<0||n>MAX) return;
-  if(n>step&&step===0&&!q("#i-nom").value.trim()){ alert("Indiquez votre nom et votre prénom avant de commencer."); q("#i-nom").focus(); return; }
+  if(S.fini&&n<MAX) return;
+  if(n===MAX&&!S.fini){
+    var msg="<p>Une fois vos résultats affichés, vous ne pourrez plus revenir aux modules ni modifier vos réponses.</p>";
+    if(S.m3.tir===null) msg+='<p class="warn">Vous n\'avez pas tiré vos deux cas particuliers au module 3 : 4 points ne seront pas comptabilisés.</p>';
+    dlg("Terminer le cahier ?",msg,"Voir mes résultats",function(){ S.fini=true; save(); go(MAX); });
+    return;
+  }
+  if(!S.fini&&n>step&&step===0&&!q("#i-nom").value.trim()){ dlg("Identification incomplète","<p>Indiquez votre nom et votre prénom avant de commencer.</p>"); return; }
   step=n;
   document.querySelectorAll(".step").forEach(function(x){ x.classList.toggle("on",Number(x.dataset.s)===step); });
   if(step===MAX) buildFin();
@@ -1186,15 +1161,14 @@ q("#bPrev").addEventListener("click",function(){ go(step-1); });
 
 /* ---------------- démarrage ---------------- */
 load();
-var IDS=[["#i-nom","nom"],["#i-ent","ent"],["#i-fon","fon"],["#i-role","role"],["#i-date","date"]];
+var IDS=[["#i-nom","nom"],["#i-ent","ent"],["#i-fon","fon"],["#i-role","role"]];
 IDS.forEach(function(p){ if(S.id[p[1]]) q(p[0]).value=S.id[p[1]]; });
-if(!q("#i-date").value){ var dd=new Date();
-  q("#i-date").value=String(dd.getDate()).padStart(2,"0")+"/"+String(dd.getMonth()+1).padStart(2,"0")+"/"+dd.getFullYear(); }
 IDS.forEach(function(p){
   ["input","change"].forEach(function(ev){ q(p[0]).addEventListener(ev,function(){ S.id[p[1]]=q(p[0]).value; save(); }); });
   S.id[p[1]]=q(p[0]).value;
 });
-buildM1(); buildM2(); buildM3(); buildM4(); buildM5(); buildQuiz(); sync();
+buildM1(); buildM2(); buildM3(); buildM4(); buildM5(); sync();
+if(S.fini){ document.querySelectorAll("input,select").forEach(function(x){ x.disabled=true; }); go(MAX); }
 </script>
 </body>
 </html>
